@@ -65,7 +65,12 @@ router.get('/baiviet/chude/:id', async (req, res) => {
 // GET: Xem bài viết
 router.get('/baiviet/chitiet/:id', async (req, res) => {
 	var id = req.params.id;
-
+var bv = await BaiViet.find({ KiemDuyet: 1, ChuDe: id })
+		.sort({ NgayDang: -1 })
+		.populate('ChuDe')
+		.populate('TaiKhoan')
+		.limit(8).exec();
+	
 	// Lấy chuyên mục hiển thị vào menu
 	var cm = await ChuDe.find();
 
@@ -75,7 +80,9 @@ router.get('/baiviet/chitiet/:id', async (req, res) => {
 		.populate('TaiKhoan').exec();
 
 	// Xử lý tăng lượt xem bài viết
-
+	await BaiViet.findByIdAndUpdate(id, { $inc: { LuotXem: 1 } }); // id là mã bài viết, $inc: { LuotXem: 1 } là tăng trường LuotXem lên 1 đơn vị
+	//code dòng 83 chạy bằng cách sử dụng phương thức findByIdAndUpdate để tìm bài viết theo id và tăng trường LuotXem lên 1 đơn vị. Điều này giúp cập nhật số lượt xem của bài viết mỗi khi có người truy cập vào trang chi tiết của bài viết đó.
+	// nhưng reset trang thì lượt xem tăng theo, có thể bị lợi dụng
 	// Lấy 3 bài viết xem nhiều nhất hiển thị vào cột phải
 	var xnn = await BaiViet.find({ KiemDuyet: 1 })
 		.sort({ LuotXem: -1 })
