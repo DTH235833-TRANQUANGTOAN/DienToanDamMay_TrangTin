@@ -31,21 +31,29 @@ router.get('/', async (req, res) => {
 // GET: Lấy các bài viết cùng mã chủ đề
 router.get('/baiviet/chude/:id', async (req, res) => {
 	var id = req.params.id;
+
+	// Lấy chuyên mục hiển thị vào menu
 	var cm = await ChuDe.find();
+
+	// Lấy thông tin chủ đề hiện tại
 	var cd = await ChuDe.findById(id);
+
+	// Lấy 8 bài viết mới nhất cùng chuyên mục
 	var bv = await BaiViet.find({ KiemDuyet: 1, ChuDe: id })
-		.sort({ NgayDang: -1 }) // sort theo ngày đăng giảm dần (mới nhất trước)
+		.sort({ NgayDang: -1 })
 		.populate('ChuDe')
 		.populate('TaiKhoan')
 		.limit(8).exec();
+
+	// Lấy 3 bài viết xem nhiều nhất hiển thị vào cột phải
 	var xnn = await BaiViet.find({ KiemDuyet: 1, ChuDe: id })
 		.sort({ LuotXem: -1 })
 		.populate('ChuDe')
 		.populate('TaiKhoan')
-		.limit(3).exec(); // Lấy 3 bài viết cùng chủ đề có lượt xem nhiều nhất
+		.limit(3).exec();
 
-	res.render('chude', {
-		title: 'bài viết cùng chuyên mục',
+	res.render('baiviet_chude', {
+		title: 'Bài viết cùng chuyên mục',
 		chuyenmuc: cm,
 		chude: cd,
 		baiviet: bv,
@@ -71,8 +79,8 @@ router.get('/baiviet/chitiet/:id', async (req, res) => {
 	// Lấy 3 bài viết xem nhiều nhất hiển thị vào cột phải
 	var xnn = await BaiViet.find({ KiemDuyet: 1 })
 		.sort({ LuotXem: -1 })
-		.populate('ChuDe')
-		.populate('TaiKhoan')
+		.populate('ChuDe') // Lấy thông tin chủ đề của bài viết
+		.populate('TaiKhoan') // Lấy thông tin tác giả của bài viết
 		.limit(3).exec();
 
 	res.render('baiviet_chitiet', {
